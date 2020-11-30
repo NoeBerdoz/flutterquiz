@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,10 +15,32 @@ class GameScreen extends StatelessWidget {
       body: ChangeNotifierProvider(
         create: (_) => QuizSession(),
         child: Consumer<QuizSession>(
-          builder: (consumerContext, session, __) => buildQuestion(consumerContext, session.currentQuestion),
+          builder: (consumerContext, session, __) => endGame(consumerContext, session),
         ),
       ),
     );
+  }
+
+  Widget endGame(BuildContext buildContext, QuizSession quizSession) {
+    if (quizSession.allQuestionsCompleted()) {
+      return Scaffold(
+        body: Column(
+          children: [
+            Text("Votre score est : ${quizSession.score}", style: TextStyle(fontSize: 20),),
+            ElevatedButton(
+                onPressed: () {
+                  quizSession.resetGame();
+                },
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Text("Nouvelle partie", textScaleFactor: 2.0, textAlign: TextAlign.center),
+                )
+            )
+          ],
+        )
+      );
+    }
+    return buildQuestion(buildContext, quizSession.currentQuestion);
   }
 
   Widget buildQuestion(BuildContext context, Question question) {
@@ -36,6 +59,15 @@ class GameScreen extends StatelessWidget {
       );
     });
 
+    Widget buildHint(BuildContext context, QuizSession quizSession){
+      return ElevatedButton(
+          onPressed: () {
+            quizSession.getQuestionHint();
+          },
+          child: Text("Donne moi un indice", textScaleFactor: 2.0, textAlign: TextAlign.center)
+      );
+    }
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -46,4 +78,5 @@ class GameScreen extends StatelessWidget {
       ),
     );
   }
+
 }
